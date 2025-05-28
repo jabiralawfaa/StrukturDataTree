@@ -216,4 +216,17 @@ void printLevelOrderQueue(TreeNode<T>? node, int targetLevel) {
 
     insertNodeLevelOrder(value);
   }
+
+  void printNode<T>(TreeNode<T> node, [int depth = 0]) {
+    String indent = '  ' * depth;
+    stdout.write('$indent${node.nodeValue}\n'); // Cetak nilai node saat ini
+    // Cek dan cetak cabang pertama jika tidak 
+    if (node.left!= null) {
+      printNode(node.left!, depth + 1);
+    }
+    // Cek dan cetak cabang kedua jika tidak null
+    if (node.right!= null) {
+      printNode(node.right!, depth + 1);
+    }
+  }
 }

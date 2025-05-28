@@ -11,6 +11,9 @@ void main() {
   tree.insertNodeLevelOrder(20.5);
   tree.insertNodeLevelOrder(10);
   tree.insertNodeLevelOrder(1);
+  tree.insertNodeWithTarget(25,true);
+
+  // tree.printNode(tree.root!);
 
   print("inorder iterative: ");
   tree.inorderIterative(tree.root);
