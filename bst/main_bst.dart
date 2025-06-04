@@ -29,4 +29,9 @@ void main() {
 
   print("\n\nHasil pencarian :");
   tree.findNode(9);
+
+  tree.removeNode(6);
+
+  print("\n\nHasil tree setelah dihapus :");
+  tree.printNode(tree.root!);
 }

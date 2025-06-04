@@ -132,7 +132,7 @@ class BinarySearchTree<T extends Comparable> {
     return true;
   }
 
-  void findNode(T value) {
+  Map<String, dynamic>? _searchNode(T value) {
     BstNode<T>? node = root;
     int orderValue = 0;
     String path = "root";
@@ -141,8 +141,7 @@ class BinarySearchTree<T extends Comparable> {
     while (node != null) {
       orderValue = value.compareTo(node.nodeValue);
       if (orderValue == 0) {
-        print("${node.nodeValue} found at $path, on level $level");
-        return;
+        return {'node': node, 'path': path, 'level': level};
       }
       if (orderValue < 0) {
         path += " -> left";
@@ -154,6 +153,51 @@ class BinarySearchTree<T extends Comparable> {
         node = node.right;
       }
     }
-    print("$value not found in the tree");
+    return null;
+  }
+
+  void findNode(T value) {
+    final result = _searchNode(value);
+    if (result != null) {
+      print(
+          "${result['node'].nodeValue} found at ${result['path']}, on level ${result['level']}");
+    } else {
+      print("$value not found in the tree");
+    }
+  }
+
+  void removeNode(T value) {
+    Map<String, dynamic>? result = _searchNode(value);
+    if (result == null) {
+      print("$value not found in the tree");
+      return;
+    }
+
+    BstNode<T> node = result['node'];
+    String path = result['path'];
+    int level = result['level'];
+
+    if (node.left == null && node.right == null) {
+      if (path == "root") {
+        root = null;
+      } else if (path.endsWith("left")) {
+        node.parent!.left = null;
+        node.parent = null;
+      } else {
+        node.parent!.right = null;
+        node.parent = null;
+      }
+    } else if (node.left != null && node.right != null) {
+      BstNode<T>? successor = node.right;
+      while (successor!.left != null) {
+        successor = successor.left;
+      }
+      node.nodeValue = successor.nodeValue;
+      if (successor.parent!.left == successor) {
+        successor.parent!.left = successor.right;
+      } else {
+        successor.parent!.right = successor.right;
+      }
+    }
   }
 }
