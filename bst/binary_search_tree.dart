@@ -74,18 +74,25 @@ class BinarySearchTree<T extends Comparable> {
 
   printNode<T>(BstNode<T>? node, [String prefix = '', bool isTail = true]) {
     if (node != null) {
+      // Print current node with decorative elements
       stdout.write(prefix);
-      stdout.write(isTail ? '└── ' : '├── ');
-      stdout.writeln(node.nodeValue);
+      stdout.write(isTail ? '╰─► ' : '├─► ');
 
+      // Add some visual styling to the node value
+      stdout.write('[ ');
+      stdout.writeln('${node.nodeValue} ]');
+
+      // Collect child nodes
       final List<BstNode<T>?> children = [];
       if (node.right != null) children.add(node.right);
       if (node.left != null) children.add(node.left);
 
+      // Print child nodes recursively
       for (int i = 0; i < children.length; i++) {
         final child = children[i];
         final isLast = i == children.length - 1;
 
+        // Use different connecting lines for better visual hierarchy
         printNode(
           child,
           prefix + (isTail ? '    ' : '│   '),
@@ -123,5 +130,30 @@ class BinarySearchTree<T extends Comparable> {
 
     treeSize++;
     return true;
+  }
+
+  void findNode(T value) {
+    BstNode<T>? node = root;
+    int orderValue = 0;
+    String path = "root";
+    int level = 0;
+
+    while (node != null) {
+      orderValue = value.compareTo(node.nodeValue);
+      if (orderValue == 0) {
+        print("${node.nodeValue} found at $path, on level $level");
+        return;
+      }
+      if (orderValue < 0) {
+        path += " -> left";
+        level++;
+        node = node.left;
+      } else {
+        path += " -> right";
+        level++;
+        node = node.right;
+      }
+    }
+    print("$value not found in the tree");
   }
 }

@@ -10,6 +10,7 @@ void main() {
   tree.insert(4);
   tree.insert(6);
   tree.insert(8);
+  tree.insert(9);
 
   print("Postorder traversal:");
   tree.postorderIterative(tree.root);
@@ -20,6 +21,12 @@ void main() {
   print("\n\nInorder traversal:");
   tree.inorderIterative(tree.root);
 
+  print("\n\nRoot adalah :");
+  tree.getRoot();
+
   print("\n\ntree :");
   tree.printNode(tree.root!);
+
+  print("\n\nHasil pencarian :");
+  tree.findNode(9);
 }
