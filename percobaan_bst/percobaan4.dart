@@ -1,0 +1,257 @@
+import 'dart:io';
+
+class STNode<T> {
+  T nodeValue;
+  STNode<T>? left, right, parent;
+
+  // Konstruktor untuk simpul tanpa anak
+  STNode(this.nodeValue, [this.parent]) {
+    left = null;
+    right = null;
+  }
+
+  // Konstruktor untuk simpul dengan anak
+  STNode.withChildren(this.nodeValue, this.left, this.right) {
+    parent = null;
+  }
+}
+
+class BinarySearchTree<T> {
+  STNode<T>? root;
+  int treeSize = 0;
+
+  // Konstruktor BST kosong
+  BinarySearchTree() {
+    root = null;
+  }
+
+  // Method untuk mendapatkan referensi root
+  STNode<T>? getRoot() {
+    return root;
+  }
+
+  void preorderIterative(STNode<T>? node) {
+    if (node == null) return;
+    List<STNode<T>?> stack = [];
+    stack.add(node);
+    while (stack.isNotEmpty) {
+      STNode<T>? current = stack.removeLast();
+      stdout.write("${current!.nodeValue} ");
+      if (current.right != null) {
+        stack.add(current.right);
+      }
+      if (current.left != null) {
+        stack.add(current.left);
+      }
+    }
+    print("");
+  }
+
+  void postorderIterative(STNode<T>? node) {
+    if (node == null) return;
+    List<STNode<T>?> stack1 = [];
+    List<STNode<T>?> stack2 = [];
+    stack1.add(node);
+    while (stack1.isNotEmpty) {
+      STNode<T>? current = stack1.removeLast();
+      stack2.add(current);
+      if (current!.left != null) {
+        stack1.add(current.left);
+      }
+      if (current.right != null) {
+        stack1.add(current.right);
+      }
+    }
+    while (stack2.isNotEmpty) {
+      stdout.write("${stack2.removeLast()!.nodeValue} ");
+    }
+  }
+
+  void inorderIterative(STNode<T>? node) {
+    if (node == null) return;
+    List<STNode<T>?> stack = [];
+    STNode<T>? current = node;
+
+    while (current != null || stack.isNotEmpty) {
+      while (current != null) {
+        stack.add(current);
+        current = current.left;
+      }
+
+      current = stack.removeLast();
+      stdout.write("${current!.nodeValue} ");
+      current = current.right;
+    }
+    print("");
+  }
+
+  bool add(T item) {
+    STNode<T>? t = root, parent;
+    int orderValue = 0;
+    while (t != null) {
+      parent = t;
+      orderValue = (item as Comparable).compareTo(t.nodeValue);
+      if (orderValue == 0) {
+        return false;
+      } else if (orderValue < 0) {
+        t = t.left;
+      } else {
+        t = t.right;
+      }
+    }
+    STNode<T> newNode = STNode(item, parent);
+    if (parent == null) {
+      root = newNode;
+    } else if (orderValue < 0) {
+      parent.left = newNode;
+    } else {
+      parent.right = newNode;
+    }
+    treeSize++;
+    return true;
+  }
+
+  STNode<T> findNode(T item) {
+    STNode<T>? t = root;
+    int orderValue = 0;
+    while (t != null) {
+      orderValue = (item as Comparable).compareTo(t.nodeValue);
+      if (orderValue == 0) {
+        return t;
+      } else if (orderValue < 0) {
+        t = t.left;
+      } else {
+        t = t.right;
+      }
+    }
+    throw Exception('Node not found');
+  }
+
+  bool find(T item) {
+    try {
+      findNode(item);
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  void removeNode(STNode<T>? dNode) {
+    if (dNode == null) {
+      return;
+    }
+    STNode<T>? pNode, rNode;
+    pNode = dNode.parent;
+// Node yang dihapus mempunyai satu anak
+    if (dNode.left == null || dNode.right == null) {
+      if (dNode.right == null) {
+        rNode = dNode.left;
+      } else {
+        rNode = dNode.right; // Fixed: was incorrectly using left node
+      }
+      if (rNode != null) {
+        print("Setting Parent");
+        rNode.parent = pNode;
+      }
+// Menghapus node root
+      if (pNode == null) {
+        root = rNode;
+      } else if (dNode.nodeValue is Comparable &&
+          (dNode.nodeValue as Comparable).compareTo(pNode.nodeValue) < 0) {
+        pNode.left = rNode;
+      } else {
+        pNode.right = rNode;
+      }
+    } // Node yang dihapus mempunyai dua anak
+    else {
+      STNode<T>? pOfRNode = dNode;
+      rNode = dNode.right;
+      while (rNode!.left != null) {
+        pOfRNode = rNode;
+        rNode = rNode.left;
+      }
+      dNode.nodeValue = rNode.nodeValue;
+      if (pOfRNode == dNode) {
+        dNode.right = rNode.right;
+      } else {
+        pOfRNode!.left = rNode.right;
+      }
+      if (rNode.right != null) {
+        rNode.right!.parent = pOfRNode;
+      }
+    }
+    treeSize--; // Decrement tree size after successful removal
+  }
+
+  printNode<T>(STNode<T>? node, [String prefix = '', bool isTail = true]) {
+    if (node != null) {
+      // Print current node with decorative elements
+      stdout.write(prefix);
+      stdout.write(isTail ? '╰─► ' : '├─► ');
+
+      // Add some visual styling to the node value
+      stdout.write('[ ');
+      stdout.writeln('${node.nodeValue} ]');
+
+      // Collect child nodes
+      final List<STNode<T>?> children = [];
+      if (node.right != null) children.add(node.right);
+      if (node.left != null) children.add(node.left);
+
+      // Print child nodes recursively
+      for (int i = 0; i < children.length; i++) {
+        final child = children[i];
+        final isLast = i == children.length - 1;
+
+        // Use different connecting lines for better visual hierarchy
+        printNode(
+          child,
+          prefix + (isTail ? '    ' : '│   '),
+          isLast,
+        );
+      }
+    }
+  }
+}
+
+void main() {
+  BinarySearchTree<int> BSTree = BinarySearchTree();
+
+  BSTree.add(7);
+  BSTree.add(4);
+  BSTree.add(5);
+  BSTree.add(9);
+  BSTree.add(11);
+  BSTree.add(12);
+
+  BSTree.printNode(BSTree.getRoot());
+  print('\ninorder :');
+  BSTree.inorderIterative(BSTree.getRoot());
+  print('\npreorder :');
+  BSTree.preorderIterative(BSTree.getRoot());
+  print('\npostorder :');
+  BSTree.postorderIterative(BSTree.getRoot());
+
+  print('\nfindnode :');
+  BSTree.findNode(9);
+
+  print('Tree Size: ${BSTree.treeSize}');
+  try {
+    var node = BSTree.findNode(5);
+    print('Node found with value: ${node.nodeValue}');
+  } catch (e) {
+    print('Node not found.');
+  }
+  bool nodefind = BSTree.find(5);
+  if (nodefind) {
+    print('Node found');
+  } else {
+    print('Node not found.');
+  }
+
+  STNode<int>? nodeToRemove = BSTree.findNode(5);
+  print('penghapusan nilai ${nodeToRemove.nodeValue} :');
+  BSTree.removeNode(nodeToRemove);
+
+  BSTree.printNode(BSTree.getRoot());
+}
